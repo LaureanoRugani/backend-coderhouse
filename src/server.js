@@ -1,17 +1,18 @@
-const express = require('express');
-const app = express();
-const Contenedor = require('./contenedor')
-const contenedor = new Contenedor("productos.json", ["timestamp", "title", "price", "description", "code", "image", "stock"]);
-const carrito = new Contenedor("carrito.json", ["timestamp", "products"])
+import express from 'express';
+import dotenv from 'dotenv';
+import { ProductoDao } from './dao/ProductoDao.js';
+import { CarritoDao } from './dao/CarritoDao.js'
+import { ProductoCarritoDao } from './dao/ProductoCarritoDao.js';
+import knex from 'knex';
 
-const dotenv = require('dotenv');
 dotenv.config();
-console.log(`Port... ${process.env.TOKEN}`);
 
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
-const authMiddleware = app.use((req, res, next) => {
+
+const authMiddleware = ((req, res, next) => {
     req.header('authorization') == process.env.TOKEN 
         ? next()
         : res.status(401).json({"error": "unauthorized"})
@@ -23,47 +24,55 @@ const routerCart = express.Router();
 app.use('/api/productos', routerProducts);
 app.use('/api/carrito', routerCart);
 
+const productoDao = new ProductoDao();
+const carritoDao = new CarritoDao();
+const productoCarritoDao = new ProductoCarritoDao();
+
+
 
 routerProducts.get('/', async (req, res) => {
-    const products = await contenedor.getAll();
+    const products = await productoDao.getAll();
     res.status(200).json(products);
 })
 
+
 routerProducts.get('/:id', async (req, res) => {
     const { id } = req.params;
-    const product = await contenedor.getById(id);
+    const product = await productoDao.getProductById(id);
     
     product
         ? res.status(200).json(product)
         : res.status(400).json({"error": "product not found"})
 })
 
-routerProducts.post('/',authMiddleware, async (req,res, next) => {
+
+routerProducts.post('/',authMiddleware, async (req,res,next) => {
     const {body} = req;
     
-    body.timestamp = Date.now();
+    body.timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
     
-    const newProductId = await contenedor.save(body);
+    const newProductId = await productoDao.save(body);
     
     newProductId
         ? res.status(200).json({"success" : "product added with ID: "+newProductId})
-        : res.status(400).json({"error": "invalid key. Please verify the body content"})
+        : res.status(400).json({"error": "Some key might be wrong. Please verify the body content"})
 })
 
-routerProducts.put('/:id', authMiddleware ,async (req, res, next) => {
+
+routerProducts.put('/:id', authMiddleware,  async (req, res, next) => {
     const {id} = req.params;
     const {body} = req;
-    const wasUpdated = await contenedor.updateById(id,body);
+    const wasUpdated = await productoDao.updateProductById(body, id);
     
     wasUpdated
         ? res.status(200).json({"success" : "product updated"})
-        : res.status(404).json({"error": "product not found"})
+        : res.status(404).json({"error": "product not found or invalid body content."})
 })
 
 
-routerProducts.delete('/:id', authMiddleware, async (req, res, next) => {
+routerProducts.delete('/:id', authMiddleware,  async (req, res, next) => {
     const {id} = req.params;
-    const wasDeleted = await contenedor.deleteById(id);
+    const wasDeleted = await productoDao.deleteById(id);
     
     wasDeleted 
         ? res.status(200).json({"success": "product successfully removed"})
@@ -73,66 +82,67 @@ routerProducts.delete('/:id', authMiddleware, async (req, res, next) => {
 
 
 routerCart.post('/', async(req, res) => {
-    const {body} = req;
-    
-    body.timestamp = Date.now();
-    body.products = [];
-    const newCartId = await carrito.save(body);
+    const newCartId = await carritoDao.save();
     
     newCartId
         ? res.status(200).json({"success" : "cart added with ID: "+newCartId})
-        : res.status(400).json({"error": "invalid key. Please verify the body content"})
-    
+        : res.status(400).json({"error": "There was a problem, please try again later"});
 })
 
 routerCart.delete('/:id', async (req, res) => {
     const {id} = req.params;
-    const wasDeleted = await carrito.deleteById(id);
+    const wasDeleted = await carritoDao.deleteById(id);
     
     wasDeleted 
         ? res.status(200).json({"success": "cart successfully removed"})
         : res.status(404).json({"error": "cart not found"})
 })
 
+
+
+
 routerCart.post('/:id/productos', async(req,res) => {
+    
     const {id} = req.params;
     const { body } = req;
     
-    const product = await contenedor.getById(body['id']);
-    
-    if (product) {
-        const cartExist = await carrito.addToArrayById(id, {"products": product});
-        cartExist
-            ? res.status(200).json({"success" : "product added"})
-            : res.status(404).json({"error": "cart not found"})
+    if (Object.prototype.hasOwnProperty.call(body, 'productId')) {
+        const newProductoCarritoId = await productoCarritoDao.saveProductToCart(id, body.productId);
+        
+        newProductoCarritoId 
+            ? res.status(200).json({"success": "Product added correctly to the Cart"})
+            : res.status(400).json({"error": "There was some problem. Maybe the ID of the Cart or the ID of the Product are invalid?"})
+        
     } else {
-        res.status(404).json({"error": "product not found, verify the ID in the body content is correct."})
+        res.status(400).json({"error": "the key MUST be 'productId', please verify."})
     }
+    
 })
 
-routerCart.get('/:id/productos', async(req, res) => {
-    const { id } = req.params;
-    const cart = await carrito.getById(id)
-    
-    cart
-        ? res.status(200).json(cart.products)
-        : res.status(404).json({"error": "cart not found"})
-})
 
 routerCart.delete('/:id/productos/:id_prod', async(req, res) => {
     const {id, id_prod } = req.params;
-    const productExists = await contenedor.getById(id_prod);
-    if (productExists) {
-        const cartExists = await carrito.removeFromArrayById(id, id_prod, 'products')
-        cartExists
-            ? res.status(200).json({"success" : "product removed"})
-            : res.status(404).json({"error": "cart not found"})
+    
+    const wasDeleted = productoCarritoDao.deleteProductFromCart(id, id_prod);
+    
+    wasDeleted 
+        ? res.status(200).json({"success": "product removed from the cart"})
+        : res.status(400).json({"error": "there was some problem"})
+    
+})
+
+
+routerCart.get('/:id/productos', async(req, res) => {
+    const { id } = req.params;
+    const cartProducts = await productoCarritoDao.getAllProductsFromCart(id); 
+    if (cartProducts.length) {
+        res.status(200).json(cartProducts)
     } else {
-        res.status(404).json({"error": "product not found"})
+        res.status(404).json({"error": "cart not found or has no products."})
     }
 })
 
-const PORT = 8020;
+const PORT = 1234;
 const server = app.listen(PORT, () => {
 console.log(` >>>>> 🚀 Server started at http://localhost:${PORT}`)
 })
