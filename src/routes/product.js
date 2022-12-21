@@ -5,7 +5,7 @@ const router = express.Router();
 const productoDao = new ProductoDao();
 
 
-
+// GET api/productos
 
 router.get('/', async (_req, res) => {
     const products = await productoDao.getAll();
@@ -15,7 +15,7 @@ router.get('/', async (_req, res) => {
     
 })
 
-
+// GET api/productos/:id
 
 router.get('/:id', async(req, res) => {
     const { id } = req.params;
@@ -28,7 +28,7 @@ router.get('/:id', async(req, res) => {
 })
 
 
-
+// POST api/productos
 router.post('/', authMiddleware, async (req,res) => {
     const { body } = req;
     const newProduct = await productoDao.createProduct(body);
@@ -39,7 +39,6 @@ router.post('/', authMiddleware, async (req,res) => {
     
 })
 
-
 router.put('/:id', authMiddleware, async (req,res) => {
     const { id } = req.params;
     const { body } = req;
@@ -49,7 +48,6 @@ router.put('/:id', authMiddleware, async (req,res) => {
         ? res.status(200).json({"success" : "product updated"})
         : res.status(404).json({"error": "product not found or invalid body content."}) 
 })
-
 
 
 

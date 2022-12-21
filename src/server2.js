@@ -29,12 +29,10 @@ const carritoDao = new CarritoDao();
 const productoCarritoDao = new ProductoCarritoDao();
 
 
-
 routerProducts.get('/', async (req, res) => {
     const products = await productoDao.getAll();
     res.status(200).json(products);
 })
-
 
 routerProducts.get('/:id', async (req, res) => {
     const { id } = req.params;
@@ -44,7 +42,6 @@ routerProducts.get('/:id', async (req, res) => {
         ? res.status(200).json(product)
         : res.status(400).json({"error": "product not found"})
 })
-
 
 routerProducts.post('/',authMiddleware, async (req,res,next) => {
     const {body} = req;
@@ -58,7 +55,6 @@ routerProducts.post('/',authMiddleware, async (req,res,next) => {
         : res.status(400).json({"error": "Some key might be wrong. Please verify the body content"})
 })
 
-
 routerProducts.put('/:id', authMiddleware,  async (req, res, next) => {
     const {id} = req.params;
     const {body} = req;
@@ -68,7 +64,6 @@ routerProducts.put('/:id', authMiddleware,  async (req, res, next) => {
         ? res.status(200).json({"success" : "product updated"})
         : res.status(404).json({"error": "product not found or invalid body content."})
 })
-
 
 routerProducts.delete('/:id', authMiddleware,  async (req, res, next) => {
     const {id} = req.params;
@@ -98,6 +93,7 @@ routerCart.delete('/:id', async (req, res) => {
         ? res.status(200).json({"success": "cart successfully removed"})
         : res.status(404).json({"error": "cart not found"})
 })
+
 
 
 
