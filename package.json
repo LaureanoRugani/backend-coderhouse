@@ -1,12 +1,12 @@
 {
-  "name": "entrega-16",
+  "name": "entrega-17",
   "version": "1.0.0",
-  "description": "Entrega 16",
-  "author": "Laureno Rugani",
+  "description": "Entrega 17",
+  "author": "Laureano Rugani",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "server": "nodemon --inspect ./src/server.js -p 3030"
+    "start": "node ./src/server.js"
   },
   "keywords": [],
   "license": "ISC",

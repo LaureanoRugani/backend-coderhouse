@@ -5,6 +5,7 @@ const router = express.Router();
 const productoDao = new ProductoDao();
 import logger from "../loggers/Log4jsLogger.js";
 
+// GET api/productos
 
 router.get('/', async (_req, res) => {
     const products = await productoDao.getAll();
@@ -14,6 +15,7 @@ router.get('/', async (_req, res) => {
     
 })
 
+// GET api/productos/:id
 
 router.get('/:id', async(req, res) => {
     const { id } = req.params;
@@ -26,6 +28,7 @@ router.get('/:id', async(req, res) => {
 })
 
 
+// POST api/productos
 router.post('/', authMiddleware, async (req,res) => {
     const { body } = req;
     const newProduct = await productoDao.createProduct(body);
@@ -36,6 +39,7 @@ router.post('/', authMiddleware, async (req,res) => {
     
 })
 
+// PUT api/productos/:id
 router.put('/:id', authMiddleware, async (req,res) => {
     const { id } = req.params;
     const { body } = req;
@@ -47,6 +51,7 @@ router.put('/:id', authMiddleware, async (req,res) => {
 })
 
 
+// DELETE /api/productos/id
 
 router.delete('/:id', authMiddleware, async (req,res) => {
     const { id } = req.params;

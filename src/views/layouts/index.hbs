@@ -6,19 +6,24 @@
         <meta name="description" content="" />
         <meta name="author" content="" />
         <title>MyAPI - Demarchi</title>
+        <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
         <link href="/styles.css" rel="stylesheet" />
         
     </head>
     <body>
         <div class="d-flex" id="wrapper">
+            <!-- Sidebar-->
             <div class="border-end bg-white" id="sidebar-wrapper">
                 <div class="sidebar-heading border-bottom bg-light">API Productos</div>
                 <div class="list-group list-group-flush">
                     {{>navlinks}}
                 </div>
             </div>
+            <!-- Page content wrapper-->
             <div id="page-content-wrapper">
+                <!-- Top navigation-->
                 <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
                     <div class="container-fluid">
                         <button class="btn btn-primary btn-sm" id="sidebarToggle">Toggle Menu</button>
@@ -43,7 +48,9 @@
                 </div>
             </div>
         </div>
+        <!-- Bootstrap core JS-->
         <script defer src="bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
         <script src="/scripts.js"></script>
     </body>
 </html>

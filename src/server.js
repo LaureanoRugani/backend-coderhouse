@@ -54,11 +54,11 @@ app.use('/api/carrito', cartRouter);
 app.use('/api/usuario', userRouter);
 app.use('/test', otherRouter);
 
-
-app.all("*", (req, res) => {
+app.all("*", (_req, res) => {
     res.status(404).json({"error": "ruta no existente"})
   });
 
+/* --------------- Leer el puerto por consola o setear default -------------- */
 
 const options = {
     alias: {
@@ -71,12 +71,11 @@ const options = {
 
 app._router.stack.forEach(function (r) {
     if (r.route && r.route.path) {
-    console.log(r.route.path)
+      console.log(r.route.path)
     }
-});
+  });
 
-const { PORT } = minimist(process.argv.slice(2), options);
-
+const PORT = process.env.PORT;
 const server = app.listen(PORT, () => {
     logger.info(`🚀 Server started at http://localhost:${PORT}`)
     })

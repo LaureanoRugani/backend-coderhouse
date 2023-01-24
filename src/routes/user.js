@@ -15,6 +15,7 @@ router.get('/login', async(req, res) => {
 
 router.post('/login', async(req, res) => {
     const {user, pass} = req.body;
+    // Ugly user and pass validation below:
     if (process.env.DUMMYUSER === user && process.env.DUMMYPASS === pass) {
         req.session.login=true;
         res.redirect('/api/usuario')
