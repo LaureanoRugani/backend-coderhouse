@@ -1,0 +1,15 @@
+<h2>¡Hola! Estás en la página de inicio.</h2>
+    {{#if status}}
+        <h4>Estás conectado</h4>
+        <p>Solo los usuarios registrados pueden ver este video</p>
+        
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe width="560" height="315"
+                src="https://www.youtube.com/embed/snVA1BR2FtE">
+            </iframe> 
+        </div>
+    
+    {{else}}
+    <h4>¡Ups! Parece que no has iniciado sesión </h4>
+    {{/if}}
+
