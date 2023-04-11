@@ -1,8 +1,8 @@
 {
   "name": "entrega-25",
   "version": "1.0.0",
-  "description": "Entrega 25 (entrega final)",
-  "author": "Laureano Rugani",
+  "description": "Entrega 25 (entrega final) para bootcamp de backend Coderhouse",
+  "author": "Esteban Demarchi",
   "main": "index.js",
   "type": "module",
   "scripts": {
